@@ -1,16 +1,30 @@
 - include: ../../common/tasks/setfacts.yml
+  tags:
+    - logger-service
 
 - name: create logger DB
   mysql_db: name={{logger_db_name}} state=present
+  register: dbschema
+  tags:
+    - logger-service
+    - db
 
 - name: create logger DB user
   mysql_user: name={{logger_db_username}} password={{logger_db_password}} priv=*.*:ALL state=present
+  register: dbuser
+  tags:
+    - logger-service
+    - db
 
 - name: copy transient files to tmp (schemas etc)
   copy: src={{item}} dest=/tmp
   with_items:
     - db/
-      
+  when: dbschema.changed
+  tags:
+    - logger-service
+    - db
+     
 - name: create schema, stored procs and reference data
   mysql_db: name={{logger_db_name}} state=import target={{item}}
   with_items:
@@ -23,18 +37,41 @@
     - /tmp/refresh_summary_totals.sql
     - /tmp/update_breakdown_summary_information.sql
     - /tmp/definer_user.sql
+  when: dbschema.changed
+  tags:
+    - logger-service
+    - db
 
 - name: ensure target directories exist [data subdirectories etc.]
   file: path={{item}} state=directory owner={{tomcat_user}} group={{tomcat_user}}
   with_items:
     - "{{data_dir}}/logger/config"
+  tags:
+    - logger-service
+    - properties
 
 - name: copy all config.properties
   template: src=logger-config.properties dest={{data_dir}}/logger/config/logger-config.properties
+  tags:
+    - logger-service
+    - properties
 
 - name: set data ownership
   file: path={{data_dir}}/logger owner={{tomcat_user}} group={{tomcat_user}} recurse=true
   notify: 
     - restart tomcat
+  tags:
+    - logger-service
+    - properties
 
-- include: ../../tomcat_deploy/tasks/main.yml app_name="logger-service" war_url='{{ logger_war_url }}' war_file="logger-service.war" context_path='{{ logger_context_path }}'
+- include: ../../apache_vhost/tasks/main.yml context_path='{{ logger_context_path }}' hostname='{{ logger_hostname }}'
+  tags:
+    - logger-service
+    - deploy
+    - apache_vhost
+
+- include: ../../tomcat_deploy/tasks/main.yml war_url='{{ logger_war_url }}' context_path='{{ logger_context_path }}' hostname='{{ logger_hostname }}'
+  tags:
+    - logger-service
+    - deploy
+    - tomcat_vhost

@@ -1,4 +1,8 @@
 - hosts: keybase
   roles:
+    - common
+    - java
+    - apache
+    - mysql
     - keybase
 

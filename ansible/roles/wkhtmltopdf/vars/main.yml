@@ -1,0 +1,5 @@
+wkhtmltopdf_url: "http://sourceforge.net/projects/wkhtmltopdf/files/archive/0.12.1/wkhtmltox-0.12.1_linux-precise-amd64.deb/download"
+
+#"http://sourceforge.net/projects/wkhtmltopdf/files/archive/0.12.1/wkhtmltox-0.12.1_linux-trusty-amd64.deb/download"
+
+#"http://downloads.sourceforge.net/project/wkhtmltopdf/0.12.1/wkhtmltox-0.12.1_linux-precise-i386.deb dest=/tmp/wkhtmltopdf.deb"

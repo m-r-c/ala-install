@@ -1,16 +1,25 @@
 - include: ../../common/tasks/setfacts.yml
+  tags:
+    - userdetails
 
-- name: create userdetails DB
+- name: create database
   mysql_db: name={{userdetails_db_name}} state=present
+  register: dbschema
+  tags:
+    - userdetails
+    - db
 
 - name: create userdetails DB user
   mysql_user: name={{userdetails_db_username}} password={{userdetails_db_password}} priv=*.*:ALL state=present
+  tags:
+    - userdetails
+    - db
 
 - name: copy transient files to tmp (schemas etc)
   copy: src={{item}} dest=/tmp
   with_items:
     - db/
-      
+        
 - name: create schema, stored procs and reference data
   mysql_db: name={{userdetails_db_name}} state=import target={{item}}
   with_items:

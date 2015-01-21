@@ -90,6 +90,11 @@ def ensure_vhost_exists(aug, vhost, filename):
         #Set DocumentRoot directive
         aug.set("/files/%(filename)s.conf/VirtualHost/directive[3]" % locals(), "DocumentRoot")
         aug.set("/files/%(filename)s.conf/VirtualHost/directive[3]/arg" % locals(), DEFAULT_DOCUMENT_ROOT % locals())
+        #Set directory permissions
+        aug.set("/files/%(filename)s.conf/VirtualHost/Directory/arg" % locals(), "/")
+        aug.set("/files/%(filename)s.conf/VirtualHost/Directory[1]/directive[1]" % locals(), "Require")
+        aug.set("/files/%(filename)s.conf/VirtualHost/Directory[1]/directive[1]/arg[1]" % locals(), "all")
+        aug.set("/files/%(filename)s.conf/VirtualHost/Directory[1]/directive[1]/arg[2]" % locals(), "granted")
         #Set ErrorLog
         aug.set("/files/%(filename)s.conf/VirtualHost/directive[4]" % locals(), "ErrorLog")
         aug.set("/files/%(filename)s.conf/VirtualHost/directive[4]/arg" % locals(), "${APACHE_LOG_DIR}/error.log")
